@@ -1,3 +1,6 @@
+  
+  ------------- THIS FILE IS JUST A TESTING OF THE ROBOT RUNNING ON LOCAL MACHINE ----------------
+  
   Summary of what's running now:
 
   - Gazebo (Harmonic) is up with square_world, the 6-wheel UGV spawned in it, and its built-in gz-sim-diff-drive-system plugin active on the wheel joints.

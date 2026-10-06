@@ -2,3 +2,5 @@ certs/
 *.key
 *.crt
 *.pem
+
+myenv
