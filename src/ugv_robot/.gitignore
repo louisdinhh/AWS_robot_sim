@@ -3,4 +3,4 @@ certs/
 *.crt
 *.pem
 
-myenv
+myenv/
