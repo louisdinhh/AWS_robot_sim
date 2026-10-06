@@ -1,0 +1,6 @@
+# AWS IoT Core MQTT
+awsiotsdk
+
+# ROS 2 Python runtime dependencies used by rclpy
+numpy
+PyYAML

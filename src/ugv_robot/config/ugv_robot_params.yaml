@@ -1,0 +1,5 @@
+# Configuration parameters for ugv_robot
+ugv_robot:
+  ros__parameters:
+    # Add your parameters here
+    example_param: "default_value"

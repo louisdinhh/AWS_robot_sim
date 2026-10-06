@@ -1,0 +1,237 @@
+<?xml version="1.0"?>
+<robot name="ugv_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ================= PROPERTIES ================= -->
+  <xacro:property name="chassis_length" value="0.6"/>
+  <xacro:property name="chassis_width"  value="0.4"/>
+  <xacro:property name="chassis_height" value="0.15"/>
+  <xacro:property name="chassis_mass"   value="8.0"/>
+
+  <xacro:property name="wheel_radius" value="0.1"/>
+  <xacro:property name="wheel_width"  value="0.06"/>
+  <xacro:property name="wheel_mass"   value="1.2"/>
+  <xacro:property name="wheel_gap"    value="0.02"/>
+
+  <xacro:property name="wheel_y" value="${chassis_width/2 + wheel_width/2 + wheel_gap}"/>
+  <xacro:property name="wheel_x_front" value="0.2"/>
+  <xacro:property name="wheel_x_mid"   value="0.0"/>
+  <xacro:property name="wheel_x_rear"  value="-0.2"/>
+  <xacro:property name="wheel_z" value="${-(chassis_height/2)}"/>
+
+  <xacro:property name="base_z" value="${wheel_radius + chassis_height/2}"/>
+
+  <!-- ================= MATERIALS ================= -->
+  <material name="chassis_grey"><color rgba="0.25 0.25 0.28 1"/></material>
+  <material name="wheel_black"><color rgba="0.05 0.05 0.05 1"/></material>
+  <material name="sensor_dark"><color rgba="0.1 0.1 0.1 1"/></material>
+  <material name="lens_blue"><color rgba="0.1 0.3 0.8 1"/></material>
+
+  <!-- ================= BASE FOOTPRINT / LINK ================= -->
+  <link name="base_footprint"/>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child  link="base_link"/>
+    <origin xyz="0 0 ${base_z}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <visual>
+      <geometry><box size="${chassis_length} ${chassis_width} ${chassis_height}"/></geometry>
+      <material name="chassis_grey"/>
+    </visual>
+    <collision>
+      <geometry><box size="${chassis_length} ${chassis_width} ${chassis_height}"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="${chassis_mass}"/>
+      <inertia ixx="${(chassis_mass/12)*(chassis_width*chassis_width+chassis_height*chassis_height)}"
+               iyy="${(chassis_mass/12)*(chassis_length*chassis_length+chassis_height*chassis_height)}"
+               izz="${(chassis_mass/12)*(chassis_length*chassis_length+chassis_width*chassis_width)}"
+               ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+
+  <gazebo reference="base_link">
+    <material>Gazebo/DarkGrey</material>
+  </gazebo>
+
+  <!-- ================= WHEEL MACRO ================= -->
+  <xacro:macro name="wheel" params="prefix x y">
+    <link name="${prefix}_wheel">
+      <visual>
+        <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+        <material name="wheel_black"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+      </collision>
+      <inertial>
+        <mass value="${wheel_mass}"/>
+        <inertia ixx="${(wheel_mass/12)*(3*wheel_radius*wheel_radius+wheel_width*wheel_width)}"
+                 iyy="${(wheel_mass/12)*(3*wheel_radius*wheel_radius+wheel_width*wheel_width)}"
+                 izz="${(wheel_mass/2)*wheel_radius*wheel_radius}"
+                 ixy="0" ixz="0" iyz="0"/>
+      </inertial>
+    </link>
+
+    <joint name="${prefix}_wheel_joint" type="continuous">
+      <parent link="base_link"/>
+      <child  link="${prefix}_wheel"/>
+      <origin xyz="${x} ${y} ${wheel_z}" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <dynamics damping="0.1" friction="0.1"/>
+    </joint>
+
+    <gazebo reference="${prefix}_wheel">
+      <material>Gazebo/Black</material>
+      <mu1>1.2</mu1>
+      <mu2>1.2</mu2>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:wheel prefix="front_left"  x="${wheel_x_front}" y="${wheel_y}"/>
+  <xacro:wheel prefix="mid_left"    x="${wheel_x_mid}"   y="${wheel_y}"/>
+  <xacro:wheel prefix="rear_left"   x="${wheel_x_rear}"  y="${wheel_y}"/>
+  <xacro:wheel prefix="front_right" x="${wheel_x_front}" y="${-wheel_y}"/>
+  <xacro:wheel prefix="mid_right"   x="${wheel_x_mid}"   y="${-wheel_y}"/>
+  <xacro:wheel prefix="rear_right"  x="${wheel_x_rear}"  y="${-wheel_y}"/>
+
+  <!-- ================= LIDAR MAST + LIDAR ================= -->
+  <link name="lidar_mast">
+    <visual>
+      <geometry><cylinder radius="0.025" length="0.12"/></geometry>
+      <material name="sensor_dark"/>
+    </visual>
+    <collision>
+      <geometry><cylinder radius="0.025" length="0.12"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.15"/>
+      <inertia ixx="0.0002" iyy="0.0002" izz="0.0001" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+
+  <joint name="lidar_mast_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="lidar_mast"/>
+    <origin xyz="0 0 ${chassis_height/2 + 0.06}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="lidar_link">
+    <visual>
+      <geometry><cylinder radius="0.04" length="0.04"/></geometry>
+      <material name="sensor_dark"/>
+    </visual>
+    <collision>
+      <geometry><cylinder radius="0.04" length="0.04"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.2"/>
+      <inertia ixx="0.0001" iyy="0.0001" izz="0.0001" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+
+  <joint name="lidar_joint" type="fixed">
+    <parent link="lidar_mast"/>
+    <child  link="lidar_link"/>
+    <origin xyz="0 0 0.08" rpy="0 0 0"/>
+  </joint>
+
+  <gazebo reference="lidar_link">
+    <sensor name="lidar" type="gpu_lidar">
+      <topic>scan</topic>
+      <update_rate>10</update_rate>
+      <gz_frame_id>lidar_link</gz_frame_id>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.12</min>
+          <max>12.0</max>
+          <resolution>0.01</resolution>
+        </range>
+      </lidar>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+    </sensor>
+  </gazebo>
+
+  <!-- ================= DEPTH CAMERA ================= -->
+  <link name="camera_link">
+    <visual>
+      <geometry><box size="0.03 0.09 0.03"/></geometry>
+      <material name="sensor_dark"/>
+    </visual>
+    <collision>
+      <geometry><box size="0.03 0.09 0.03"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.12"/>
+      <inertia ixx="0.0001" iyy="0.0001" izz="0.0001" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="camera_link"/>
+    <origin xyz="${chassis_length/2 + 0.01} 0 0.02" rpy="0 0 0"/>
+  </joint>
+
+  <link name="camera_optical_frame"/>
+
+  <joint name="camera_optical_joint" type="fixed">
+    <parent link="camera_link"/>
+    <child  link="camera_optical_frame"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <gazebo reference="camera_link">
+    <sensor name="depth_camera" type="rgbd_camera">
+      <topic>camera</topic>
+      <update_rate>15</update_rate>
+      <gz_frame_id>camera_optical_frame</gz_frame_id>
+      <camera>
+        <horizontal_fov>1.047</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>10.0</far>
+        </clip>
+      </camera>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+    </sensor>
+  </gazebo>
+
+  <!-- ================= GAZEBO CONTROL PLUGINS ================= -->
+  <gazebo>
+    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+      <left_joint>front_left_wheel_joint</left_joint>
+      <left_joint>mid_left_wheel_joint</left_joint>
+      <left_joint>rear_left_wheel_joint</left_joint>
+      <right_joint>front_right_wheel_joint</right_joint>
+      <right_joint>mid_right_wheel_joint</right_joint>
+      <right_joint>rear_right_wheel_joint</right_joint>
+      <wheel_separation>${2*wheel_y}</wheel_separation>
+      <wheel_radius>${wheel_radius}</wheel_radius>
+      <topic>cmd_vel</topic>
+      <odom_topic>odom</odom_topic>
+      <tf_topic>tf</tf_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_footprint</child_frame_id>
+    </plugin>
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher"/>
+  </gazebo>
+
+</robot>

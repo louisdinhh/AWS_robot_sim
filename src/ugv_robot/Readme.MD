@@ -1,0 +1,11 @@
+  Summary of what's running now:
+
+  - Gazebo (Harmonic) is up with square_world, the 6-wheel UGV spawned in it, and its built-in gz-sim-diff-drive-system plugin active on the wheel joints.
+  - The ros_gz_bridge is bridging /cmd_vel (ROS→Gazebo) plus odom, tf, scan, joint_states, and camera topics — I found and fixed a YAML formatting bug in ugv_bridge.yaml that was
+    crashing the bridge on load.
+  - teleop_twist_keyboard launches automatically in its own xterm window as part of the launch, so you can drive the robot with the keyboard immediately.
+  - I verified the whole path is live: publishing linear.x: 0.3 moved the robot from x≈0 to x≈1.06 m over the drive window, confirming the Gazebo diff-drive controller genuinely
+    responds to /cmd_vel.
+  - Added a send_velocity.py command-line tool (ros2 run ugv_robot send_velocity.py --linear 0.3 --angular 0.0 --duration 2.0) as a second way to send velocity commands without
+    needing the keyboard — useful for scripted moves or testin.
+

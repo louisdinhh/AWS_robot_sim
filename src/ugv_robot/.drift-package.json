@@ -1,0 +1,15 @@
+{
+  "package_name": "ugv_robot",
+  "build_type": "ament_cmake",
+  "dependencies": [
+    "urdf",
+    "xacro",
+    "robot_state_publisher",
+    "joint_state_publisher",
+    "ros_gz_sim",
+    "ros_gz_bridge"
+  ],
+  "created_at": "2026-09-24T16:34:26.803Z",
+  "needs_executable": false,
+  "drift_managed": true
+}
