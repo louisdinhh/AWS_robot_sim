@@ -4,32 +4,7 @@ This project demonstrates remote control of a ROS 2 Gazebo UGV through **AWS IoT
 
 The system uses an AWS IoT Core MQTT topic to send velocity commands to a local Ubuntu computer. The local computer receives the MQTT message and converts it into a ROS 2 `Twist` message published to `/cmd_vel`.
 
-```text
-┌──────────────────────────────┐
-│        AWS IoT Core          │
-│                              │
-│ MQTT Topic:                  │
-│ ugv/cmd_vel                  │
-└──────────────┬───────────────┘
-               │
-               │ MQTT / TLS
-               ▼
-┌──────────────────────────────┐
-│        Ubuntu PC             │
-│                              │
-│ iot_cmd_vel_bridge.py        │
-│          │                   │
-│          ▼                   │
-│      ROS 2 /cmd_vel          │
-└──────────────┬───────────────┘
-               │
-               ▼
-┌──────────────────────────────┐
-│       Gazebo UGV             │
-│                              │
-│       Simulated Robot        │
-└──────────────────────────────┘
-```
+<img src="image.png" alt="Project image" width="200">
 
 ## 1. Prerequisites
 
