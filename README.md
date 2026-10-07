@@ -1,4 +1,4 @@
-# AWS IoT Core → ROS 2 → Gazebo UGV
+# Controlling a simulated UGV in Gazebo using AWS IoT Core & ROS 2
 
 This project demonstrates remote control of a ROS 2 Gazebo UGV through **AWS IoT Core MQTT**.
 
@@ -10,9 +10,9 @@ The system uses an AWS IoT Core MQTT topic to send velocity commands to a local 
 
 ### Hardware
 
-* Ubuntu PC
+* Ubuntu 24.04 
 * Internet connection
-* Optional: AWS account
+* An AWS account
 
 No physical robot is required. The current implementation controls a simulated UGV in Gazebo.
 
@@ -27,7 +27,7 @@ The project was developed using:
 * AWS CLI
 * AWS IoT Device SDK for Python v2
 * Git
-* VS Code (optional)
+* VS Code 
 
 ROS 2 Jazzy and Gazebo should be installed before setting up this package.
 
@@ -91,18 +91,6 @@ ugv_robot/
 ├── package.xml
 └── requirements.txt
 ```
-
-The Python virtual environment `myenv` should not be committed to Git.
-
-Add it to `.gitignore`:
-
-```text
-myenv/
-certs/*
-```
-
-Keep the AWS certificates out of Git repositories.
-
 ---
 
 # 3. Create AWS IoT Core Resources
@@ -383,29 +371,6 @@ install(
   DESTINATION lib/${PROJECT_NAME}
 )
 ```
-
-### Important
-
-Do **not** use `RENAME` with multiple Python files.
-
-For example, this is incorrect:
-
-```cmake
-install(
-  PROGRAMS
-    scripts/send_velocity.py
-    scripts/iot_cmd_vel_bridge.py
-  DESTINATION lib/${PROJECT_NAME}
-  RENAME send_velocity
-)
-```
-
-CMake will produce:
-
-```text
-_install PROGRAMS given RENAME option with more than one file
-```
-
 ---
 
 # 10. Build the ROS 2 Workspace
